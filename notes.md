@@ -1,0 +1,12 @@
+Notes:
+Creator: Josue Basurto
+
+Project URL https://opsxgufgntpgdilmpogg.supabase.co
+Database Password Supabase: qXRm32UEcS1CEsdi
+NAme JoshSuperBowlLX
+Anon Public eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wc3hndWZnbnRwZ2RpbG1wb2dnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA0ODk2ODIsImV4cCI6MjA4NjA2NTY4Mn0.81v-to8d2YCE3n-hcY-yoCB5FAHNczIN4ztPcFmpD3M 
+servicde role secret eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wc3hndWZnbnRwZ2RpbG1wb2dnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MDQ4OTY4MiwiZXhwIjoyMDg2MDY1NjgyfQ.83NqjFjLkiA_ngtlir0u0PgQcbmjdZ24c1bAw4at0S4 
+
+
+Bucket josh-superbowllx
+Endpoint https://opsxgufgntpgdilmpogg.storage.supabase.co/storage/v1/s3
