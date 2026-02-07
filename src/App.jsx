@@ -375,9 +375,13 @@ export default function App() {
                 <h3 className="text-3xl font-black italic text-white drop-shadow" style={{fontFamily: 'Arial, sans-serif'}}>{nextEv.name}</h3>
                 <p className="text-sm text-cyan-200 font-bold mt-2">{nextEv.time.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</p>
               </div>
-              <button onClick={() => setShowCheveMeter(true)} className={`w-full p-4 rounded-xl border-2 font-black transition-all active:scale-95 ${\n                cheveCount >= 6 ? 'bg-gradient-to-r from-red-900 to-red-800 border-red-600 text-red-100' :\n                cheveCount > 4 ? 'bg-gradient-to-r from-yellow-600 to-yellow-500 border-yellow-500 text-yellow-50' :\n                'bg-gradient-to-r from-slate-700 to-slate-600 border-blue-400 text-white'\n              }`} style={{fontFamily: 'Arial, sans-serif'}}>
-                <p className="text-xs font-black opacity-80\">CHEVE-METER</p>
-                <p className="text-4xl font-black drop-shadow\">{cheveCount} 🍺</p>
+              <button onClick={() => setShowCheveMeter(true)} className={`w-full p-4 rounded-xl border-2 font-black transition-all active:scale-95 ${
+                cheveCount >= 6 ? 'bg-gradient-to-r from-red-900 to-red-800 border-red-600 text-red-100' :
+                cheveCount > 4 ? 'bg-gradient-to-r from-yellow-600 to-yellow-500 border-yellow-500 text-yellow-50' :
+                'bg-gradient-to-r from-slate-700 to-slate-600 border-blue-400 text-white'
+              }`} style={{fontFamily: 'Arial, sans-serif'}}>
+                <p className="text-xs font-black opacity-80">CHEVE-METER</p>
+                <p className="text-4xl font-black drop-shadow">{cheveCount} 🍺</p>
               </button>
             </div>
 
