@@ -125,14 +125,30 @@ export default function App() {
 
   // Auth - Usar solo localStorage sin Supabase Auth
   useEffect(() => {
-    const storedUserId = localStorage.getItem('basurto_uid');
-    if (storedUserId) {
-      setUserId(storedUserId);
-    } else {
-      const newUserId = 'user-' + Date.now();
-      setUserId(newUserId);
-      localStorage.setItem('basurto_uid', newUserId);
-    }
+    const initAuth = async () => {
+      const storedUserId = localStorage.getItem('basurto_uid');
+      if (storedUserId) {
+        setUserId(storedUserId);
+      } else {
+        const newUserId = 'user-' + Date.now();
+        setUserId(newUserId);
+        localStorage.setItem('basurto_uid', newUserId);
+        
+        // Insertar usuario en Supabase para evitar FK constraint
+        if (supabase) {
+          try {
+            await supabase.from('users').insert({
+              uid: newUserId,
+              name: 'Guest',
+              team: null
+            }).then(() => null).catch(() => null); // No fallar si ya existe
+          } catch (err) {
+            // Silenciar errores
+          }
+        }
+      }
+    };
+    initAuth();
   }, []);
 
   useEffect(() => {
@@ -198,9 +214,17 @@ export default function App() {
   const sendMessage = async () => {
     if (!newMessage.trim() || !userId || !supabase) return;
     try {
+      // Asegurar que el usuario existe en la tabla
+      await supabase.from('users').upsert({
+        uid: userId,
+        name: userName || 'Guest',
+        team: favTeam || null,
+        lastActive: new Date().toISOString()
+      }, { onConflict: 'uid' }).then(() => null).catch(() => null);
+      
       const { error } = await supabase.from('messages').insert({
         uid: userId,
-        name: userName,
+        name: userName || 'Guest',
         text: newMessage,
         created_at: new Date().toISOString()
       });
@@ -226,6 +250,14 @@ export default function App() {
     
     setIsSendingSurvey(true);
     try {
+      // Asegurar que el usuario existe
+      await supabase.from('users').upsert({
+        uid: userId,
+        name: userName || 'Guest',
+        team: favTeam || null,
+        lastActive: new Date().toISOString()
+      }, { onConflict: 'uid' }).then(() => null).catch(() => null);
+      
       const { error } = await supabase.from('surveys').insert({
         uid: userId,
         name: userName,
@@ -639,6 +671,14 @@ export default function App() {
                     <button onClick={async () => {
                       if (!userId || !supabase) return;
                       try {
+                        // Asegurar que el usuario existe
+                        await supabase.from('users').upsert({
+                          uid: userId,
+                          name: userName,
+                          team: favTeam,
+                          lastActive: new Date().toISOString()
+                        }, { onConflict: 'uid' }).then(() => null).catch(() => null);
+                        
                         await supabase.from('quinielas').insert({
                           uid: userId,
                           name: userName,
