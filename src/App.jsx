@@ -23,10 +23,13 @@ const CustomStyles = () => (
     @keyframes slideInFromTop { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     @keyframes slideInFromRight { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     @keyframes slideInFromLeft { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes shatter { 0% { transform: perspective(1000px) rotateX(0) rotateY(0); } 50% { transform: perspective(1000px) rotateX(2deg) rotateY(-2deg); } 100% { transform: perspective(1000px) rotateX(0) rotateY(0); } }
     .animate-fadeIn { animation: fadeIn 500ms ease-in-out; }
     .animate-slideInFromTop { animation: slideInFromTop 500ms ease-out; }
     .animate-slideInFromRight { animation: slideInFromRight 500ms ease-out; }
     .animate-slideInFromLeft { animation: slideInFromLeft 500ms ease-out; }
+    .sb-gradient { background: linear-gradient(135deg, #D91E63 0%, #8B008B 25%, #4169E1 50%, #00CED1 75%, #FFD700 100%); }
+    .sb-glow { text-shadow: 0 0 10px rgba(216, 30, 99, 0.5), 0 0 20px rgba(65, 105, 225, 0.3); }
   `}</style>
 );
 
@@ -335,14 +338,15 @@ export default function App() {
       <FontLink />
       <CustomStyles />
       
-      {/* Header simplificado */}
-      <header className={`${teamColor} text-white border-b-4 border-slate-900 p-4 shadow-2xl sticky top-0 z-50`}>
-        <div className="flex items-center justify-center mb-3">
+      {/* Header con gradiente Super Bowl LX */}
+      <header className="sb-gradient text-white border-b-4 border-slate-900 p-4 shadow-2xl sticky top-0 z-50" style={{boxShadow: '0 10px 30px rgba(216, 30, 99, 0.3)'}}>
+        <div className="flex items-center justify-center mb-2">
           <div className="flex-1 text-center">
-            <h1 className="text-3xl font-black italic drop-shadow" style={{ fontFamily: 'Permanent Marker' }}>CASA BASURTO</h1>
+            <h1 className="text-5xl md:text-6xl font-black italic drop-shadow-2xl sb-glow" style={{fontFamily: 'Arial, sans-serif', letterSpacing: '-3px', fontWeight: '900'}}>LX</h1>
           </div>
         </div>
-        <p className="text-xs font-black uppercase tracking-tight text-white/70 text-center">{userName} • {favTeam}</p>
+        <p className="text-xs font-black uppercase tracking-widest text-center text-white/90" style={{textShadow: '0 2px 4px rgba(0,0,0,0.3)', fontFamily: 'Arial, sans-serif'}}>THE BIG GAME 🏈</p>
+        <p className="text-xs font-black uppercase tracking-tight text-white/70 text-center mt-2 drop-shadow" style={{fontFamily: 'Arial, sans-serif'}}>Casa Basurto • {userName} • {favTeam}</p>
       </header>
 
       <main className="p-4 max-w-2xl mx-auto space-y-6 pb-6 animate-fadeIn">
@@ -351,75 +355,70 @@ export default function App() {
           <>
             {/* ANTES Y DURANTE EL PARTIDO */}
             {/* 1. Para Saber Más */}
-            <div className="bg-slate-800 p-6 rounded-2xl border-2 border-cyan-400/40 shadow-2xl hover:shadow-3xl transition-shadow drop-shadow-lg" style={{boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(34, 197, 94, 0.1)'}}>
-              <button onClick={() => setShowMoreInfo(true)} className="w-full text-left hover:opacity-80 transition-all">
-                <h2 className="text-3xl font-black italic text-cyan-400 drop-shadow" style={{ fontFamily: 'Permanent Marker' }}>ℹ️ Para Saber Más</h2>
-                <p className="text-xs text-cyan-300 mt-2">Equipos, jugadores, curiosidades y más</p>
+            <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-2xl border-2 border-pink-500/50 shadow-2xl hover:shadow-3xl transition-all drop-shadow-lg" style={{boxShadow: '0 20px 25px -5px rgba(217, 30, 99, 0.3)'}}>
+              <button onClick={() => setShowMoreInfo(true)} className="w-full text-left hover:opacity-90 transition-all">
+                <h2 className="text-3xl font-black italic text-transparent bg-clip-text" style={{backgroundImage: 'linear-gradient(135deg, #D91E63, #FF1493)', fontFamily: 'Arial, sans-serif', letterSpacing: '-1px', fontWeight: '900'}}>ℹ️ PARA SABER MÁS</h2>
+                <p className="text-xs text-pink-300 mt-2 font-bold">Equipos, jugadores, curiosidades</p>
               </button>
             </div>
 
             {/* 2. Estado Actual */}
-            <div className="bg-slate-800 p-6 rounded-2xl border-2 border-yellow-300/40 shadow-2xl hover:shadow-3xl transition-shadow drop-shadow-lg" style={{boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(250, 204, 21, 0.1)'}}>
+            <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-2xl border-2 border-cyan-500/50 shadow-2xl hover:shadow-3xl transition-all drop-shadow-lg" style={{boxShadow: '0 20px 25px -5px rgba(65, 105, 225, 0.3)'}}>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-black italic text-yellow-300 drop-shadow" style={{ fontFamily: 'Permanent Marker' }}>Estado Actual</h2>
-                <button onClick={() => setShowAgenda(true)} className="text-xs font-black text-yellow-300 hover:text-yellow-200 underline flex items-center gap-1 transition-all">
-                  <Calendar size={14} /> Ver Agenda
+                <h2 className="text-2xl font-black italic text-transparent bg-clip-text" style={{backgroundImage: 'linear-gradient(135deg, #4169E1, #00CED1)', fontFamily: 'Arial, sans-serif', fontWeight: '900'}}>ESTADO ACTUAL</h2>
+                <button onClick={() => setShowAgenda(true)} className="text-xs font-black text-cyan-400 hover:text-cyan-300 underline flex items-center gap-1 transition-all" style={{fontFamily: 'Arial, sans-serif'}}>
+                  <Calendar size={14} /> AGENDA
                 </button>
               </div>
-              <div className="bg-slate-700 p-4 rounded-xl border-2 border-yellow-300/30 mb-4">
-                <p className="text-xs text-yellow-300 font-black uppercase mb-1">Próximo evento:</p>
-                <h3 className="text-3xl font-black italic text-white drop-shadow" style={{ fontFamily: 'Permanent Marker' }}>{nextEv.name}</h3>
-                <p className="text-sm text-yellow-200 font-bold mt-2">{nextEv.time.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</p>
+              <div className="bg-gradient-to-r from-slate-700 to-slate-600 p-4 rounded-xl border-2 border-cyan-500/50 mb-4">
+                <p className="text-xs text-cyan-300 font-black uppercase mb-1">Próximo evento:</p>
+                <h3 className="text-3xl font-black italic text-white drop-shadow" style={{fontFamily: 'Arial, sans-serif'}}>{nextEv.name}</h3>
+                <p className="text-sm text-cyan-200 font-bold mt-2">{nextEv.time.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</p>
               </div>
-              <button onClick={() => setShowCheveMeter(true)} className={`w-full p-4 rounded-xl border-l-4 border-yellow-300 hover:opacity-90 transition-all active:scale-95 ${
-                cheveCount >= 6 ? 'bg-red-900 text-red-100' :
-                cheveCount > 4 ? 'bg-yellow-600 text-yellow-50' :
-                'bg-slate-900 text-white'
-              }`}>
-                <p className="text-xs font-black opacity-80">CHEVE-METER</p>
-                <p className="text-4xl font-black drop-shadow">{cheveCount} 🍺</p>
+              <button onClick={() => setShowCheveMeter(true)} className={`w-full p-4 rounded-xl border-2 font-black transition-all active:scale-95 ${\n                cheveCount >= 6 ? 'bg-gradient-to-r from-red-900 to-red-800 border-red-600 text-red-100' :\n                cheveCount > 4 ? 'bg-gradient-to-r from-yellow-600 to-yellow-500 border-yellow-500 text-yellow-50' :\n                'bg-gradient-to-r from-slate-700 to-slate-600 border-blue-400 text-white'\n              }`} style={{fontFamily: 'Arial, sans-serif'}}>
+                <p className="text-xs font-black opacity-80\">CHEVE-METER</p>
+                <p className="text-4xl font-black drop-shadow\">{cheveCount} 🍺</p>
               </button>
             </div>
 
             {/* 3. La Quiniela */}
-            <div className="bg-slate-800 p-6 rounded-2xl border-2 border-emerald-500/40 shadow-2xl hover:shadow-3xl transition-shadow drop-shadow-lg" style={{boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(16, 185, 129, 0.1)'}}>
-              <button onClick={() => setShowQuiniela(true)} className="w-full text-left hover:opacity-80 transition-all">
-                <h2 className="text-2xl font-black italic text-emerald-400 drop-shadow" style={{ fontFamily: 'Permanent Marker' }}>🏆 La Quiniela (25 preguntas)</h2>
-                <p className="text-xs text-emerald-300 mt-2">{myQuiniela ? '✅ Tu quiniela está bloqueada' : '📝 Haz clic para responder'}</p>
+            <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-2xl border-2 border-cyan-500/50 shadow-2xl hover:shadow-3xl transition-all drop-shadow-lg" style={{boxShadow: '0 20px 25px -5px rgba(0, 206, 209, 0.3)'}}>
+              <button onClick={() => setShowQuiniela(true)} className="w-full text-left hover:opacity-90 transition-all">
+                <h2 className="text-2xl font-black italic text-transparent bg-clip-text" style={{backgroundImage: 'linear-gradient(135deg, #00CED1, #00FF00)', fontFamily: 'Arial, sans-serif', fontWeight: '900'}}>🏆 LA QUINIELA</h2>
+                <p className="text-xs text-cyan-300 mt-2 font-bold\">{myQuiniela ? '✅ BLOQUEADA' : '📝 25 PREGUNTAS'}</p>
               </button>
               {myQuiniela && (
-                <button onClick={() => setShowQuinielasDetail(true)} className="w-full mt-4 bg-slate-700 p-3 rounded-xl border-2 border-emerald-500/40 hover:border-emerald-500/70 transition-all text-yellow-300 font-black hover:bg-slate-600">
+                <button onClick={() => setShowQuinielasDetail(true)} className="w-full mt-4 bg-gradient-to-r from-slate-700 to-slate-600 p-3 rounded-xl border-2 border-cyan-500/40 hover:border-cyan-500/70 transition-all text-cyan-300 font-black hover:bg-slate-600" style={{fontFamily: 'Arial, sans-serif'}}>
                   Ver todas las quinielas ({allQuinielas.length} jugadores)
                 </button>
               )}
             </div>
 
             {/* 4. Mensajes */}
-            <div className="bg-slate-800 p-6 rounded-2xl border-2 border-blue-400/40 shadow-2xl hover:shadow-3xl transition-shadow drop-shadow-lg" style={{boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(96, 165, 250, 0.1)'}}>
-              <button onClick={() => setShowMessages(true)} className="w-full text-left hover:opacity-80 transition-all">
-                <h2 className="text-2xl font-black italic text-blue-400 drop-shadow" style={{ fontFamily: 'Permanent Marker' }}>💬 Mensajes</h2>
-                <p className="text-xs text-blue-300 mt-2">{messages.length} mensajes • Haz clic para abrir</p>
+            <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-2xl border-2 border-yellow-500/50 shadow-2xl hover:shadow-3xl transition-all drop-shadow-lg" style={{boxShadow: '0 20px 25px -5px rgba(255, 215, 0, 0.3)'}}>
+              <button onClick={() => setShowMessages(true)} className="w-full text-left hover:opacity-90 transition-all">
+                <h2 className="text-2xl font-black italic text-transparent bg-clip-text" style={{backgroundImage: 'linear-gradient(135deg, #FFD700, #FFA500)', fontFamily: 'Arial, sans-serif', fontWeight: '900'}}>💬 MENSAJES</h2>
+                <p className="text-xs text-yellow-300 mt-2 font-bold">{messages.length} mensajes • Haz clic para abrir</p>
               </button>
             </div>
 
-            {/* 5. Menú */}
-            <div className="bg-slate-800 p-6 rounded-2xl border-2 border-yellow-300/40 shadow-2xl hover:shadow-3xl transition-shadow drop-shadow-lg" style={{boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(250, 204, 21, 0.1)'}}>
-              <button onClick={() => {}} className="w-full text-left hover:opacity-80 transition-all cursor-not-allowed opacity-60">
-                <h2 className="text-2xl font-black italic text-yellow-300 drop-shadow" style={{ fontFamily: 'Permanent Marker' }}>🍔 Menú</h2>
-                <p className="text-xs text-yellow-300 mt-2">📋 Haz clic para ver el menú</p>
+            {/* 5. Menú - Purple Accent */}
+            <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-2xl border-2 border-pink-500/50 shadow-2xl shadow-sm transition-all drop-shadow-lg opacity-60 pointer-events-none" style={{boxShadow: '0 10px 15px -3px rgba(217, 30, 99, 0.2)'}}>
+              <button className="w-full text-left cursor-not-allowed">
+                <h2 className="text-2xl font-black italic text-transparent bg-clip-text" style={{backgroundImage: 'linear-gradient(135deg, #D91E63, #8B008B)', fontFamily: 'Arial, sans-serif', fontWeight: '900'}}>🍔 MENÚ</h2>
+                <p className="text-xs text-pink-300 mt-2 font-bold">Disponible durante el evento</p>
               </button>
             </div>
           </>
         ) : (
           <>
-            {/* DESPUÉS DEL PARTIDO */}
-            {/* Solo Encuesta de Calidad */}
-            <div className="bg-slate-800 p-6 rounded-2xl border-2 border-purple-400/40 shadow-2xl hover:shadow-3xl transition-shadow drop-shadow-lg" style={{boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(168, 85, 247, 0.1)'}}>
-              <h2 className="text-2xl font-black italic text-purple-400 drop-shadow mb-4" style={{ fontFamily: 'Permanent Marker' }}>⭐ Encuesta de Calidad</h2>
+            {/* DESPUÉS DEL PARTIDO - Solo Encuesta */}
+            <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-2xl border-2 border-pink-500/50 shadow-2xl hover:shadow-3xl transition-all drop-shadow-lg" style={{boxShadow: '0 20px 25px -5px rgba(216, 30, 99, 0.3)'}}>
+              <h2 className="text-2xl font-black italic text-transparent bg-clip-text mb-4" style={{backgroundImage: 'linear-gradient(135deg, #D91E63, #4169E1)', fontFamily: 'Arial, sans-serif', fontWeight: '900'}}>⭐ ENCUESTA DE CALIDAD</h2>
               {!mySurvey ? (
                 <SurveyForm onSubmit={submitSurvey} isLoading={isSendingSurvey} />
               ) : (
-                <p className="text-sm bg-purple-500/20 text-purple-300 p-3 rounded-xl border border-purple-500/40 font-bold">✅ Gracias por tu respuesta</p>
+                <p className="text-sm bg-pink-500/20 text-pink-300 p-3 rounded-xl border border-pink-500/40 font-bold text-center">✅ ¡Gracias por tu feedback!</p>
               )}
             </div>
           </>
@@ -758,18 +757,18 @@ function SurveyForm({ onSubmit, isLoading }) {
     <div className="space-y-4">
       {survey.map((item, idx) => (
         <div key={item.id} className="space-y-2">
-          <p className="text-sm font-black text-yellow-300">{idx+1}. {item.q}</p>
+          <p className="text-sm font-black text-transparent bg-clip-text" style={{backgroundImage: 'linear-gradient(135deg, #D91E63, #4169E1)', fontFamily: 'Arial, sans-serif'}}>{idx+1}. {item.q}</p>
           <div className="flex flex-wrap gap-2">
             {item.opt.map(o => (
               <button key={o} onClick={() => setResponses({...responses, [item.id]: o})}
-                className={`px-3 py-2 rounded-lg text-xs font-black transition-all border-2 ${responses[item.id] === o ? 'bg-purple-500 border-purple-400 text-white' : 'border-slate-600 text-slate-300 hover:border-purple-500/50'}`}>
+                className={`px-3 py-2 rounded-lg text-xs font-black transition-all border-2 ${responses[item.id] === o ? 'bg-gradient-to-r from-pink-500 to-purple-500 border-pink-400 text-white shadow-lg shadow-pink-500/30' : 'border-slate-500 text-slate-300 bg-slate-700 hover:border-pink-500/70 hover:bg-slate-600'}`} style={{fontFamily: 'Arial, sans-serif'}}>
                 {o}
               </button>
             ))}
           </div>
         </div>
       ))}
-      <button onClick={() => onSubmit(responses)} disabled={isLoading} className="w-full bg-purple-500 text-white font-black py-3 rounded-xl hover:bg-purple-400 transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed">{isLoading ? 'Enviando...' : 'Enviar Encuesta'}</button>
+      <button onClick={() => onSubmit(responses)} disabled={isLoading} className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black py-3 rounded-xl hover:from-pink-600 hover:to-purple-600 transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-pink-500/30" style={{fontFamily: 'Arial, sans-serif'}}>{isLoading ? 'ENVIANDO...' : 'ENVIAR ENCUESTA'}</button>
     </div>
   );
 }
