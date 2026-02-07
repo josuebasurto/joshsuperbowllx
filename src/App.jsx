@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { Beer, Trophy, Utensils, BarChart3, Clock, Calendar, Lock, CheckCircle2, Send, MessageSquare, Star, Image as ImageIcon } from 'lucide-react';
+import { Beer, Trophy, Utensils, BarChart3, Clock, Calendar, Lock, CheckCircle2 } from 'lucide-react';
 
 // --- CONFIGURACIÓN DE SUPABASE ---
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://YOUR_SUPABASE_URL.supabase.co';
@@ -41,17 +41,15 @@ export default function App() {
   const [globalStats, setGlobalStats] = useState({ cheves: 0, participants: 7 });
   const [allQuinielas, setAllQuinielas] = useState([]);
   const [myQuiniela, setMyQuiniela] = useState(null);
-  const [messages, setMessages] = useState([]);
   const [surveys, setSurveys] = useState([]);
   const [now, setNow] = useState(new Date());
-  const [newMessage, setNewMessage] = useState('');
   const [mySurvey, setMySurvey] = useState(null);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const [showQuinielasDetail, setShowQuinielasDetail] = useState(false);
   const [showCheveMeter, setShowCheveMeter] = useState(false);
   const [showQuiniela, setShowQuiniela] = useState(false);
-  const [showMessages, setShowMessages] = useState(false);
   const [showAgenda, setShowAgenda] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const [cheveCount, setCheveCount] = useState(parseInt(localStorage.getItem('basurto_cheves')) || 0);
   const [isSendingSurvey, setIsSendingSurvey] = useState(false);
 
@@ -90,11 +88,11 @@ export default function App() {
   ];
 
   const agenda = [
-    { id: 1, name: 'Pre-Game & Botanas', time: new Date('2026-02-08T15:30:00') },
-    { id: 2, name: 'Himno Nacional', time: new Date('2026-02-08T16:15:00') },
+    { id: 1, name: 'Bienvenidos', time: new Date('2026-02-08T15:30:00') },
+    { id: 2, name: 'Inicio de transmisión', time: new Date('2026-02-08T16:00:00') },
     { id: 3, name: 'KICKOFF', time: new Date('2026-02-08T16:30:00') },
-    { id: 4, name: 'Halftime Show', time: new Date('2026-02-08T18:30:00') },
-    { id: 5, name: 'Trofeo Lombardi', time: new Date('2026-02-08T20:15:00') },
+    { id: 4, name: 'Medio Tiempo', time: new Date('2026-02-08T18:30:00') },
+    { id: 5, name: 'Entrega de trofeo Vince Lombardo', time: new Date('2026-02-08T20:15:00') },
   ];
 
   const menuOptions = [
@@ -123,32 +121,13 @@ export default function App() {
 
   const isGameEnded = now > new Date('2026-02-08T20:15:00');
 
-  // Auth - Usar solo localStorage sin Supabase Auth
+  // Auth - Usar nombre de usuario como único con cookie permanente
   useEffect(() => {
-    const initAuth = async () => {
-      const storedUserId = localStorage.getItem('basurto_uid');
-      if (storedUserId) {
-        setUserId(storedUserId);
-      } else {
-        const newUserId = 'user-' + Date.now();
-        setUserId(newUserId);
-        localStorage.setItem('basurto_uid', newUserId);
-        
-        // Insertar usuario en Supabase para evitar FK constraint
-        if (supabase) {
-          try {
-            await supabase.from('users').insert({
-              uid: newUserId,
-              name: 'Guest',
-              team: null
-            }).then(() => null).catch(() => null); // No fallar si ya existe
-          } catch (err) {
-            // Silenciar errores
-          }
-        }
-      }
-    };
-    initAuth();
+    const storedUserName = localStorage.getItem('basurto_name');
+    if (storedUserName) {
+      setUserName(storedUserName);
+      setUserId(storedUserName); // Usar el nombre como ID único
+    }
   }, []);
 
   useEffect(() => {
@@ -158,12 +137,11 @@ export default function App() {
 
   // Fetch data
   useEffect(() => {
-    if (!userId || !supabase) return;
+    if (!userName || !supabase) return;
     fetchStats();
     fetchQuinielas();
-    fetchMessages();
     fetchSurveys();
-  }, [userId]);
+  }, [userName]);
 
   const fetchStats = async () => {
     if (!supabase) return;
@@ -181,22 +159,14 @@ export default function App() {
       const { data } = await supabase.from('quinielas').select('*');
       if (data) {
         setAllQuinielas(data);
-        setMyQuiniela(data.find(q => q.uid === userId));
+        setMyQuiniela(data.find(q => q.name === userName));
       }
     } catch (err) {
       console.error(err);
     }
   };
 
-  const fetchMessages = async () => {
-    if (!supabase) return;
-    try {
-      const { data } = await supabase.from('messages').select('*').order('created_at', { ascending: true });
-      if (data) setMessages(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+
 
   const fetchSurveys = async () => {
     if (!supabase) return;
@@ -204,45 +174,21 @@ export default function App() {
       const { data } = await supabase.from('surveys').select('*');
       if (data) {
         setSurveys(data);
-        setMySurvey(data.find(s => s.uid === userId));
+        setMySurvey(data.find(s => s.name === userName));
       }
     } catch (err) {
       console.error(err);
     }
   };
 
-  const sendMessage = async () => {
-    if (!newMessage.trim() || !userId || !supabase) return;
-    try {
-      // Asegurar que el usuario existe en la tabla
-      await supabase.from('users').upsert({
-        uid: userId,
-        name: userName || 'Guest',
-        team: favTeam || null,
-        lastActive: new Date().toISOString()
-      }, { onConflict: 'uid' }).then(() => null).catch(() => null);
-      
-      const { error } = await supabase.from('messages').insert({
-        uid: userId,
-        name: userName || 'Guest',
-        text: newMessage,
-        created_at: new Date().toISOString()
-      });
-      if (!error) {
-        setNewMessage('');
-        await fetchMessages();
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
+
 
   const submitSurvey = async (responses) => {
     if (mySurvey) {
       alert('Ya has respondido la encuesta!');
       return;
     }
-    if (!userId || !supabase) {
+    if (!userName || !supabase) {
       alert('No se pudo guardar la encuesta. Intenta recargar la página.');
       return;
     }
@@ -250,16 +196,7 @@ export default function App() {
     
     setIsSendingSurvey(true);
     try {
-      // Asegurar que el usuario existe
-      await supabase.from('users').upsert({
-        uid: userId,
-        name: userName || 'Guest',
-        team: favTeam || null,
-        lastActive: new Date().toISOString()
-      }, { onConflict: 'uid' }).then(() => null).catch(() => null);
-      
       const { error } = await supabase.from('surveys').insert({
-        uid: userId,
         name: userName,
         q1: responses.q1 || '',
         q2: responses.q2 || '',
@@ -272,7 +209,7 @@ export default function App() {
         alert('Error: ' + (error.message || 'No se pudo guardar'));
         setIsSendingSurvey(false);
       } else {
-        setMySurvey({ uid: userId, name: userName, ...responses });
+        setMySurvey({ name: userName, ...responses });
         setIsSendingSurvey(false);
       }
     } catch (err) {
@@ -288,6 +225,7 @@ export default function App() {
   const handleRegisterName = (name) => {
     if (!name.trim()) return;
     setUserName(name);
+    setUserId(name); // Usar el nombre como ID único
     localStorage.setItem('basurto_name', name);
     setView('onboarding_team');
   };
@@ -295,14 +233,12 @@ export default function App() {
   const handleSelectTeam = async (team) => {
     setFavTeam(team);
     localStorage.setItem('basurto_team', team);
-    if (userId && supabase) {
+    if (userName && supabase) {
       try {
         await supabase.from('users').upsert({
-          uid: userId,
           name: userName,
-          team: team,
-          lastActive: new Date().toISOString()
-        });
+          team: team
+        }, { onConflict: 'name' });
       } catch (err) {
         console.error(err);
       }
@@ -406,6 +342,7 @@ export default function App() {
                 <p className="text-xs text-cyan-300 font-black uppercase mb-1">Próximo evento:</p>
                 <h3 className="text-3xl font-black italic text-white drop-shadow" style={{fontFamily: 'Arial, sans-serif'}}>{nextEv.name}</h3>
                 <p className="text-sm text-cyan-200 font-bold mt-2">{nextEv.time.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</p>
+                <CountdownTimer targetTime={nextEv.time} />
               </div>
               <button onClick={() => setShowCheveMeter(true)} className={`w-full p-4 rounded-xl border-2 font-black transition-all active:scale-95 ${
                 cheveCount >= 6 ? 'bg-gradient-to-r from-red-900 to-red-800 border-red-600 text-red-100' :
@@ -430,19 +367,13 @@ export default function App() {
               )}
             </div>
 
-            {/* 4. Mensajes */}
-            <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-2xl border-2 border-yellow-500/50 shadow-2xl hover:shadow-3xl transition-all drop-shadow-lg" style={{boxShadow: '0 20px 25px -5px rgba(255, 215, 0, 0.3)'}}>
-              <button onClick={() => setShowMessages(true)} className="w-full text-left hover:opacity-90 transition-all">
-                <h2 className="text-2xl font-black italic text-transparent bg-clip-text" style={{backgroundImage: 'linear-gradient(135deg, #FFD700, #FFA500)', fontFamily: 'Arial, sans-serif', fontWeight: '900'}}>💬 MENSAJES</h2>
-                <p className="text-xs text-yellow-300 mt-2 font-bold">{messages.length} mensajes • Haz clic para abrir</p>
-              </button>
-            </div>
 
-            {/* 5. Menú - Purple Accent */}
-            <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-2xl border-2 border-pink-500/50 shadow-2xl shadow-sm transition-all drop-shadow-lg opacity-60 pointer-events-none" style={{boxShadow: '0 10px 15px -3px rgba(217, 30, 99, 0.2)'}}>
-              <button className="w-full text-left cursor-not-allowed">
+
+            {/* 5. Menú */}
+            <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-2xl border-2 border-pink-500/50 shadow-2xl hover:shadow-3xl transition-all drop-shadow-lg" style={{boxShadow: '0 20px 25px -5px rgba(217, 30, 99, 0.3)'}}>
+              <button onClick={() => setShowMenu(true)} className="w-full text-left hover:opacity-90 transition-all">
                 <h2 className="text-2xl font-black italic text-transparent bg-clip-text" style={{backgroundImage: 'linear-gradient(135deg, #D91E63, #8B008B)', fontFamily: 'Arial, sans-serif', fontWeight: '900'}}>🍔 MENÚ</h2>
-                <p className="text-xs text-pink-300 mt-2 font-bold">Disponible durante el evento</p>
+                <p className="text-xs text-pink-300 mt-2 font-bold">Disponible antes y durante el partido</p>
               </button>
             </div>
           </>
@@ -669,18 +600,9 @@ export default function App() {
                       ))}
                     </div>
                     <button onClick={async () => {
-                      if (!userId || !supabase) return;
+                      if (!userName || !supabase) return;
                       try {
-                        // Asegurar que el usuario existe
-                        await supabase.from('users').upsert({
-                          uid: userId,
-                          name: userName,
-                          team: favTeam,
-                          lastActive: new Date().toISOString()
-                        }, { onConflict: 'uid' }).then(() => null).catch(() => null);
-                        
                         await supabase.from('quinielas').insert({
-                          uid: userId,
                           name: userName,
                           team: favTeam,
                           ...formQuiniela
@@ -701,45 +623,7 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL: Mensajes */}
-      {showMessages && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm overflow-y-auto z-50 animate-fadeIn">
-          <div className="min-h-screen p-4 flex items-center justify-center">
-            <div className="bg-slate-800 rounded-3xl border-2 border-blue-400/40 shadow-2xl w-full max-w-md">
-              <div className="sticky top-0 bg-slate-800 p-6 border-b-2 border-blue-400/40 flex justify-between items-center rounded-t-3xl">
-                <h2 className="text-2xl font-black italic text-blue-400 drop-shadow" style={{ fontFamily: 'Permanent Marker' }}>💬 Mensajes</h2>
-                <button onClick={() => setShowMessages(false)} className="text-2xl text-blue-400 hover:text-blue-300 font-black">✕</button>
-              </div>
-              <div className="p-6 space-y-4">
-                <div className="bg-slate-700 p-4 rounded-xl max-h-56 overflow-y-auto space-y-3">
-                  {messages.length === 0 ? (
-                    <p className="text-xs text-slate-400 text-center py-4">Sin mensajes aún...</p>
-                  ) : (
-                    messages.map((msg, idx) => (
-                      <div key={idx} className="bg-slate-600 p-3 rounded-lg border-l-2 border-blue-400">
-                        <p className="text-xs font-black text-blue-300">{msg.name}</p>
-                        <p className="text-sm text-white mt-1">{msg.text}</p>
-                      </div>
-                    ))
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <input 
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-                    placeholder="Tu mensaje..."
-                    className="flex-1 bg-slate-700 p-3 rounded-lg border-2 border-slate-600 focus:border-blue-400 text-white text-sm outline-none transition-all"
-                  />
-                  <button onClick={sendMessage} className="bg-blue-500 text-white p-3 rounded-lg font-black hover:bg-blue-400 transition-all flex items-center gap-1">
-                    <Send size={16} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* MODAL: Agenda */}
       {showAgenda && (
@@ -753,23 +637,22 @@ export default function App() {
               <div className="p-6 space-y-3 max-h-96 overflow-y-auto">
                 {agenda.map((item, idx) => {
                   const status = getStatus(item.time);
-                  const statusColor = status === 'Próximamente' ? 'from-slate-600 to-slate-700 border-slate-500' :
-                                    status === 'En curso' ? 'from-green-600/30 to-green-700/30 border-green-500/50' :
-                                    'from-slate-700 to-slate-800 border-slate-600';
-                  const statusBadge = status === 'Próximamente' ? 'bg-slate-500 text-slate-100' :
-                                    status === 'En curso' ? 'bg-green-500 text-white animate-pulse' :
-                                    'bg-slate-600 text-slate-300';
+                  const isPassed = status === 'passed';
+                  const isCurrent = status === 'current';
                   
                   return (
-                    <div key={idx} className={`bg-gradient-to-r ${statusColor} p-4 rounded-xl border-2 transition-all`}>
+                    <div key={idx} className={`p-4 rounded-xl border-2 transition-all ${
+                      isCurrent ? 'bg-gradient-to-r from-green-600/30 to-green-700/30 border-green-500/50' :
+                      isPassed ? 'bg-gradient-to-r from-slate-700 to-slate-800 border-slate-600 opacity-50' :
+                      'bg-gradient-to-r from-slate-600 to-slate-700 border-slate-500'
+                    }`}>
                       <div className="flex justify-between items-start gap-3">
                         <div className="flex-1">
-                          <p className="text-sm font-black text-orange-300">{item.time}</p>
-                          <p className="text-white font-bold mt-1">{item.event}</p>
+                          <p className="text-sm font-black text-orange-300">{item.time.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</p>
+                          <p className="text-white font-bold mt-1">{item.name}</p>
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-black whitespace-nowrap ${statusBadge}`}>
-                          {status}
-                        </span>
+                        {isCurrent && <span className="px-3 py-1 rounded-full text-xs font-black bg-green-500 text-white animate-pulse">EN CURSO</span>}
+                        {isPassed && <span className="px-3 py-1 rounded-full text-xs font-black bg-slate-600 text-slate-300">✓</span>}
                       </div>
                     </div>
                   );
@@ -780,6 +663,48 @@ export default function App() {
         </div>
       )}
 
+      {/* MODAL: Menú */}
+      {showMenu && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm overflow-y-auto z-50 animate-fadeIn">
+          <div className="min-h-screen p-4 flex items-center justify-center">
+            <div className="bg-slate-800 rounded-3xl border-2 border-pink-400/40 shadow-2xl w-full max-w-md">
+              <div className="sticky top-0 bg-slate-800 p-6 border-b-2 border-pink-400/40 flex justify-between items-center rounded-t-3xl">
+                <h2 className="text-2xl font-black italic text-pink-400 drop-shadow" style={{ fontFamily: 'Permanent Marker' }}>🍔 Menú</h2>
+                <button onClick={() => setShowMenu(false)} className="text-2xl text-pink-400 hover:text-pink-300 font-black">✕</button>
+              </div>
+              <div className="p-6 space-y-3">
+                {menuOptions.map((item, idx) => (
+                  <div key={idx} className="bg-slate-700 p-4 rounded-xl border-2 border-slate-600 hover:border-pink-500/40 transition-all">
+                    <p className="font-black text-white text-base">{item.name}</p>
+                    {item.desc && <p className="text-xs text-slate-400 mt-1">{item.desc}</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Footer con Créditos */}
+      <footer className="bg-slate-900 border-t-2 border-slate-800 p-6 text-center mt-12">
+        <p className="text-xs text-slate-400 font-bold mb-2">Creado con ❤️ para el Super Bowl LX</p>
+        <p className="text-sm font-black text-transparent bg-clip-text" style={{backgroundImage: 'linear-gradient(135deg, #D91E63, #4169E1)'}}>
+          by Josue Basurto
+        </p>
+        <p className="text-xs text-slate-500 font-bold mt-1">Software Engineer</p>
+        <a 
+          href="https://wa.me/526632954046" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 mt-3 text-emerald-400 hover:text-emerald-300 font-black text-sm transition-all"
+        >
+          <span>📱 WhatsApp</span>
+        </a>
+        <div className="mt-6 pt-4 border-t border-slate-800">
+          <p className="text-xs text-slate-600 font-bold mb-2">🕒 Hora del cliente (browser):</p>
+          <BrowserClock />
+        </div>
+      </footer>
     </div>
   );
 }
@@ -814,5 +739,67 @@ function SurveyForm({ onSubmit, isLoading }) {
       ))}
       <button onClick={() => onSubmit(responses)} disabled={isLoading} className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-black py-3 rounded-xl hover:from-pink-600 hover:to-purple-600 transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-pink-500/30" style={{fontFamily: 'Arial, sans-serif'}}>{isLoading ? 'ENVIANDO...' : 'ENVIAR ENCUESTA'}</button>
     </div>
+  );
+}
+
+function CountdownTimer({ targetTime }) {
+  const [timeLeft, setTimeLeft] = useState('');
+
+  useEffect(() => {
+    const updateCountdown = () => {
+      const now = new Date();
+      const diff = targetTime - now;
+      
+      if (diff <= 0) {
+        setTimeLeft('¡Ahora!');
+        return;
+      }
+      
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      
+      if (days > 0) {
+        setTimeLeft(`${days}d ${hours}h ${minutes}m`);
+      } else if (hours > 0) {
+        setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+      } else {
+        setTimeLeft(`${minutes}m ${seconds}s`);
+      }
+    };
+    
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
+    return () => clearInterval(timer);
+  }, [targetTime]);
+
+  return (
+    <p className="text-xs text-cyan-400 font-bold mt-2 animate-pulse">
+      ⏱️ {timeLeft}
+    </p>
+  );
+}
+
+function BrowserClock() {
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <p className="text-sm font-black text-slate-400">
+      {time.toLocaleString('es-MX', { 
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      })}
+    </p>
   );
 }

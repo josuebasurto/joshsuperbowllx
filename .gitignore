@@ -6,3 +6,10 @@ dist
 .DS_Store
 *.log
 *.vue.js
+notes.md
+pendientes.md
+resueltos.md
+use cases.md
+app.js
+app_supabase.js
+SUPABASE_SETUP.md
