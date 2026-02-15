@@ -144,15 +144,10 @@ SuperBowlLX/
 4. **Disfruta el evento**: Usa el menú, cheve-meter y agenda
 5. **Encuesta final**: Comparte tu experiencia
 
-## 📸 Screenshots
-
-![Dashboard](./screenshots/image.png)
-
 ## 👨‍💻 Créditos
 
 **Desarrollado por Josue Basurto**
 - Software Engineer
-- [WhatsApp](https://wa.me/526632954046)
 
 ---
 
